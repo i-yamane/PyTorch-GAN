@@ -113,20 +113,9 @@ class UNet32x32(nn.Module):  # type: ignore
 
         self.down1 = UNetDown(in_channels, b, normalize=False)
         self.down2 = UNetDown(b, 2*b)
-        # self.down3 = UNetDown(2*b, 4*b, normalize=False)
         self.down3 = UNetDown(2*b, 4*b)
         self.down4 = UNetDown(4*b, 4*b, dropout=0.5, normalize=False)
-        # self.down4 = UNetDown(4*b, 8*b, dropout=0.5)
-        # self.down5 = UNetDown(8*b, 8*b, dropout=0.5)
-        # self.down6 = UNetDown(8*b, 8*b, dropout=0.5)
-        # self.down7 = UNetDown(8*b, 8*b, dropout=0.5)
-        # self.down8 = UNetDown(8*b, 8*b, normalize=False, dropout=0.5)
 
-        # self.up7 = UNetUp(8*b, 8*b, dropout=0.5)
-        # self.up6 = UNetUp(2*8*b, 8*b, dropout=0.5)
-        # self.up5 = UNetUp(2*8*b, 8*b, dropout=0.5)
-        # self.up4 = UNetUp(2*8*b, 8*b, dropout=0.5)
-        # self.up3 = UNetUp(2*8*b, 4*b)
         self.up3 = UNetUp(4*b, 4*b)
         self.up2 = UNetUp(2*4*b, 2*b)
         self.up1 = UNetUp(2*2*b, b)
@@ -134,7 +123,6 @@ class UNet32x32(nn.Module):  # type: ignore
         self.final = nn.Sequential(
             nn.Upsample(scale_factor=2),
             nn.ZeroPad2d((1, 0, 1, 0)),
-            # nn.Conv2d(128, out_channels, 4, padding=1),
             nn.Conv2d(2*base_num_filters, out_channels, 4, padding=1),
             nn.Tanh(),
         )
@@ -149,18 +137,8 @@ class UNet32x32(nn.Module):  # type: ignore
         d2 = self.down2(d1)
         d3 = self.down3(d2)
         d4 = self.down4(d3)
-        # d5 = self.down5(d4)
-        # d6 = self.down6(d5)
-        # d7 = self.down7(d6)
-        # d8 = self.down8(d7)
-        # u7 = self.up7(d8, d7)
-        # u6 = self.up6(u7, d6)
-        # u5 = self.up5(u6, d5)
-        # u4 = self.up4(u5, d4)
-        # u3 = self.up3(u4, d3)
         u3 = self.up3(d4, d3)
         u2 = self.up2(u3, d2)
-        # u2 = self.up2(d3, d2)
         u1 = self.up1(u2, d1)
         u0 = self.final(u1)
 
